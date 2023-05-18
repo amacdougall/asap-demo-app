@@ -16,15 +16,6 @@ def hello_world():
 
 @route_blueprint.route("/member_id", methods=["POST"])
 def member_id():
-    missing_properties = []
-
-    for k in ["first_name", "last_name", "dob", "country"]:
-        if not request.json.get(k):
-            missing_properties.append(k)
-
-    if missing_properties:
-        return jsonify({"error": "Missing required properties: {}".format(", ".join(missing_properties))}), 400
-
     try:
         # splat request JSON body into create_member function
         member_id = create_member(**request.json)
@@ -34,9 +25,11 @@ def member_id():
             return jsonify({"error": "Could not create member due to an unknown error"}), 500
     except MemberAlreadyExistsError:
         return jsonify({"error": "Member with this id already exists"}), 409
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except pymongo.errors.OperationFailure as e:
         return jsonify({
-            "error": "Could not create member due to MongoDB error: " + str(e)
+            "error": "Could not create member due to error: " + str(e)
         }), 500
 
 @route_blueprint.route("/member_id/validate", methods=["GET", "POST"])
