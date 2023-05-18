@@ -23,3 +23,11 @@ and set some values, then:
 ```
 docker compose up --build
 ```
+
+## Tests
+
+There's only one test file! I would just run it directly with python:
+
+```
+python3 flask/app/test_members.py
+```
