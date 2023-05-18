@@ -1,7 +1,7 @@
 import pymongo
 import uuid
 from flask import Blueprint, render_template, request, jsonify
-from db import create_member, member_is_valid, MemberAlreadyExistsError
+from members import create_member, member_is_valid, MemberAlreadyExistsError
 
 route_blueprint = Blueprint('route_blueprint', __name__)
 

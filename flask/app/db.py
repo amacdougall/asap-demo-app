@@ -1,41 +1,24 @@
 import os
-import uuid
-import json
-from datetime import datetime
 from pymongo import MongoClient
 from bson.binary import UuidRepresentation
 
 MONGODB_URI = os.environ.get("MONGODB_URI")
 
-client = MongoClient(MONGODB_URI,
-                     connectTimeoutMS=30000,
-                     uuidRepresentation='standard')
-db = client["member-api"]
+mongo_client = MongoClient(MONGODB_URI,
+                           connectTimeoutMS=30000,
+                           uuidRepresentation='standard')
 
-class MemberAlreadyExistsError(Exception):
-    pass
+db = mongo_client["member-api"]
 
-def create_member(first_name=None, last_name=None, dob=None, country=None):
-    member = {
-        "first_name": first_name,
-        "last_name": last_name,
-        "dob": dob,
-        "country": country
-    }
+# Insert a member into the database. Returns the database id of the inserted
+# record.
+def insert_member(member):
+    result = db.members.insert_one(member)
+    return result.inserted_id
 
-    # build UUIDv5 from hash of JSON string of member variable
-    member_id = uuid.uuid5(uuid.NAMESPACE_DNS, json.dumps(member))
-
-    if member_is_valid(member_id):
-        raise MemberAlreadyExistsError
-
-    member["member_id"] = member_id
-    # MongoDB converts datetime objects to ISODate objects
-    member["dob"] = datetime.strptime(dob, "%m/%d/%Y")
-    document = db.members.insert_one(member)
-    return str(member_id)
-
-# Given a UUID object, return True if a member with that id exists.
-def member_is_valid(member_id):
-    member = db.members.find_one({"member_id": member_id})
-    return member is not None
+# Find a member by an arbitrary property, supplied as a dict. Returns the
+# member, or None.
+#
+# Example: find_member_by({"member_id": uuid.uuid5(...)})
+def find_member_by(query):
+    return db.members.find_one(query)
