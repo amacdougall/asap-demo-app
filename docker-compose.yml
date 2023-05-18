@@ -25,7 +25,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: raiseyourgame
+      MONGO_INITDB_DATABASE: members-api
       MONGODB_DATA_DIR: /data/db
       MONGODB_LOG_DIR: /dev/null
     ports:
