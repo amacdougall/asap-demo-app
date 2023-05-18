@@ -6,13 +6,19 @@ services:
       dockerfile: Dockerfile
     container_name: flask
     restart: unless-stopped
-    environment:
-      MONGODB_URI: $MONGODB_URI # from .env
-      REDIS_HOST: $REDIS_HOST
     ports:
       - "80:80"
     volumes:
-      - appdata:/var/www
+      - ./flask/app:/app
+    environment:
+      - MONGODB_URI=$MONGODB_URI # from .env
+      - REDIS_HOST=$REDIS_HOST
+      - FLASK_APP=main.py
+      - FLASK_DEBUG=1
+      - 'RUN=flask run --host=0.0.0.0 --port=80'
+    command: flask run --host=0.0.0.0 --port=80
+    # or use this infinite loop if you just need the container up
+    # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
     depends_on:
       - mongodb
     networks:
@@ -52,8 +58,6 @@ networks:
 
 volumes:
   mongodbdata:
-    driver: local
-  appdata:
     driver: local
   redisdata:
     driver: local
