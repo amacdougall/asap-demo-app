@@ -15,7 +15,8 @@ Suggested read order:
 
 ## Running
 
-Standard Docker Compose setup. Check out the code, then:
+Standard Docker Compose setup. Check out the code, copy `.env.example` to `.env`
+and set some values, then:
 
 ```
 docker compose up --build
