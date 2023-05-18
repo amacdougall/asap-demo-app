@@ -1,0 +1,51 @@
+services:
+  flask:
+    # profiles: ["production"]
+    build:
+      context: ./flask
+      dockerfile: Dockerfile
+    container_name: flask
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: $MONGODB_URI # from .env
+    ports:
+      - "80:80"
+    volumes:
+      - appdata:/var/www
+    depends_on:
+      - mongodb
+    networks:
+      - frontend
+      - backend
+  # TODO: redis for use as cache
+  mongodb:
+    image: mongo
+    restart: unless-stopped
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: raiseyourgame
+      MONGODB_DATA_DIR: /data/db
+      MONGODB_LOG_DIR: /dev/null
+    ports:
+      - "27017:27017"
+      # TODO: switch availability based on env
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mongodbdata:
+    driver: local
+  appdata:
+    driver: local
+  nginxdata:
+    driver: local

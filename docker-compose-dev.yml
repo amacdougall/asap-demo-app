@@ -1,0 +1,53 @@
+services:
+  flask:
+    # profiles: ["production"]
+    build:
+      context: ./flask
+      dockerfile: Dockerfile
+    container_name: flask
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./flask/app:/app
+    environment:
+      - MONGODB_URI=$MONGODB_URI # from .env
+      - FLASK_APP=main.py
+      - FLASK_DEBUG=1
+      - 'RUN=flask run --host=0.0.0.0 --port=80'
+    command: flask run --host=0.0.0.0 --port=80
+    # or use this infinite loop if you just need the container up
+    # command: bash -c "while true; do echo 'sleeping...' && sleep 10; done"
+    depends_on:
+      - mongodb
+    networks:
+      - frontend
+      - backend
+  # TODO: redis for use as cache
+  mongodb:
+    image: mongo
+    restart: unless-stopped
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: raiseyourgame
+      MONGODB_DATA_DIR: /data/db
+      MONGODB_LOG_DIR: /dev/null
+    ports:
+      - "27017:27017"
+      # TODO: switch availability based on env
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mongodbdata:
+    driver: local
