@@ -12,6 +12,7 @@ services:
       - ./flask/app:/app
     environment:
       - MONGODB_URI=$MONGODB_URI # from .env
+      - REDIS_HOST=$REDIS_HOST
       - FLASK_APP=main.py
       - FLASK_DEBUG=1
       - 'RUN=flask run --host=0.0.0.0 --port=80'
@@ -23,7 +24,6 @@ services:
     networks:
       - frontend
       - backend
-  # TODO: redis for use as cache
   mongodb:
     image: mongo
     restart: unless-stopped
@@ -36,9 +36,17 @@ services:
       MONGODB_LOG_DIR: /dev/null
     ports:
       - "27017:27017"
-      # TODO: switch availability based on env
     volumes:
       - mongodbdata:/data/db
+    networks:
+      - backend
+  redis:
+    image: redis:7.0.11-alpine
+    restart: unless-stopped
+    container_name: redis
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redisdata:/data
     networks:
       - backend
 
@@ -50,4 +58,6 @@ networks:
 
 volumes:
   mongodbdata:
+    driver: local
+  redisdata:
     driver: local

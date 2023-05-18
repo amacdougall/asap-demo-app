@@ -54,5 +54,5 @@ def create_member(first_name=None, last_name=None, dob=None, country=None):
 
 # Given a UUID object, return True if a member with that id exists.
 def member_is_valid(member_id):
-    member = db.find_member_by({"member_id": member_id})
+    member = db.find_member(member_id)
     return member is not None

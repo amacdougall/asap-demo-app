@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from members import create_member, member_is_valid, MemberAlreadyExistsError
 
-# Matcher which returns true if member_id of the called_with object matches the
+# Matcher which returns true if member_id of the actual object matches the
 # expected id; using string comparison, since the UUID objects will not be
 # identical.
 class HasMemberIdMatcher:
@@ -18,12 +18,12 @@ class HasMemberIdMatcher:
             return False
         return str(actual["member_id"]) == str(self.expected_id)
 
-class TestDB(unittest.TestCase):
-    @patch("db.find_member_by")
+class TestMembers(unittest.TestCase):
+    @patch("db.find_member")
     def test_member_is_valid_when_found(self,
-                                        mock_find_member_by):
+                                        mock_find_member):
         member_id = uuid.UUID('00000000-0000-0000-0000-000000000000')
-        mock_find_member_by.return_value = {
+        mock_find_member.return_value = {
             "member_id": member_id,
             "first_name": "John",
             "last_name": "Doe",
@@ -32,11 +32,11 @@ class TestDB(unittest.TestCase):
         }
         assert member_is_valid(member_id) is True
 
-    @patch("db.find_member_by")
+    @patch("db.find_member")
     def test_member_is_not_valid_when_not_found(self,
-                                                mock_find_member_by):
+                                                mock_find_member):
         member_id = uuid.UUID('00000000-0000-0000-0000-000000000000')
-        mock_find_member_by.return_value = None
+        mock_find_member.return_value = None
         assert member_is_valid(member_id) is False
 
     @patch("db.insert_member")
